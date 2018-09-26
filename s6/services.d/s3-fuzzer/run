@@ -1,0 +1,17 @@
+#!/usr/bin/with-contenv sh
+
+cd /app
+
+if [ -z "$SEED" ]; then
+    SEED='12345567890'
+fi
+
+if [ -z "$COUNT" ]; then
+    COUNT='-1'
+fi
+
+if [ -z "$STEP" ]; then
+    STEP='0'
+fi
+
+exec python test.py "$SEED" "$COUNT" "$STEP"
