@@ -14,4 +14,4 @@ if [ -z "$STEP" ]; then
     STEP='0'
 fi
 
-exec python test.py "$SEED" "$COUNT" "$STEP"
+exec python run.py "$SEED" "$COUNT" "$STEP"
