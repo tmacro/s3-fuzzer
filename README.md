@@ -48,7 +48,7 @@ aws:
   bucket: my-aws-bucket
 ```
 
-s3-fuzzer can also be configured using environment variables. Variable names are determined by flattening the config structure, upper casing, and seprating levels with an `_`.
+s3-fuzzer can also be configured using environment variables. Variable names are determined by flattening the config structure, upper casing, and separating levels with an `_`.
 ie:
 
 ```yaml
