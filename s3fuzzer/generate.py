@@ -39,17 +39,18 @@ class Payload:
     def _gen_prefix(self, count):
         if count == 0:
             return ''
-        max_len = math.floor(1000/count) - 1
+        max_len = math.floor((915 - count)/count) - 1
         return '/'.join([self._gen_str(self._prng.randint(1, max_len)) for x in range(count)])
 
     def _gen_params(self):
         self._num_objects = self._gen_object_count()
         self._num_prefixes = self._gen_num_prefixes()
         self._prefix = self._gen_prefix(self._num_prefixes)
+        _log.info('Using prefix len %i'%len(self._prefix))
 
     def _gen_object_names(self, count, prefix_len):
         for x in range(count):
-            yield self._gen_str(self._prng.randint(1, 1024-prefix_len))
+            yield self._gen_str(self._prng.randint(1, 915-prefix_len-1))
 
     def _gen_object_versions(self):
         return self._prng.randint(config.objects.versions.min, config.objects.versions.max)
@@ -61,17 +62,19 @@ class Payload:
     def __call__(self, bucket):
         self._init_prng()
         self._gen_params()
+        _log.info('Environment num_object: %i prefix: %s'%(self._num_objects, self._prefix))
         fmt = '%s/%s' if self._prefix else '%s%s'
         for name, versions in self._gen_objs():
             yield partial(operation.create_object,  # Create Master
                             bucket,
                             fmt%(self._prefix, name),
                             b'')
-            for v in range(versions):
-                yield partial(operation.create_object,  # Create our versions
-                                bucket,
-                                fmt%(self._prefix, name),
-                                b'')
+            if config.versioned:
+                for v in range(versions):
+                    yield partial(operation.create_object,  # Create our versions
+                                    bucket,
+                                    fmt%(self._prefix, name),
+                                    b'')
 
 def generate_payloads(seed, count = -1, step = 0):
     prng = conv.prng(seed)
@@ -86,14 +89,19 @@ def generate_payloads(seed, count = -1, step = 0):
 
 
 class Transformation:
-    _ops = (
-        operation.delete_master,
-        operation.delete_version
-    )
-
     def __init__(self, seed, ds):
         self._datastore = ds
         self._seed = seed
+
+    @property
+    def _ops(self):
+        if config.versioned:
+            return (
+                operation.delete_master,
+                operation.delete_version
+            )
+        else:
+            return (operation.delete_master,)
 
     def _init_prng(self):
         self._prng = conv.prng(self._seed)
@@ -102,7 +110,10 @@ class Transformation:
         return self._prng.choice(self._ops)
 
     def _rand_key(self, bucket):
-        return self._prng.choice(list(self._datastore.get(bucket).keys(deleted=False)))
+        try:
+            return self._prng.choice(list(self._datastore.get(bucket).keys(deleted=False)))
+        except IndexError:
+            return None
 
     def _rand_version(self, bucket, key):
         available = self._datastore.get(bucket, key).versions
@@ -113,6 +124,8 @@ class Transformation:
     def rand_op(self, bucket):
         op = self._rand_op()
         key = self._rand_key(bucket)
+        if key is None:
+            return None
         if op is operation.delete_version:
             version = self._rand_version(bucket, key)
             if not version:
@@ -127,7 +140,10 @@ class Transformation:
         self._init_prng()
         num_ops = self._prng.randint(config.transform.min, config.transform.max)
         for op in range(num_ops):
-            yield self.rand_op(bucket)
+            rop = self.rand_op(bucket)
+            if rop is not None:
+                yield rop
+
 
 
 def generate_transormation(seed, ds):
@@ -139,7 +155,7 @@ class Test:
     _ops = (
         operation.list_objects,
         operation.list_versions
-    )
+    ) if config.versioned else (operation.list_objects,)
 
     def __init__(self, seed, ds):
         self._ds = ds

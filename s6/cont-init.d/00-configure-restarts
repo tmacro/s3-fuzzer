@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv sh
+
+if [ -z "$ANTITIMEOUT" ]; then
+    rm -rf /etc/services.d/anti-timeout
+fi
+
+if [ -z "$COUNT" ]; then
+    rm /etc/services.d/s3-fuzzer/finish
+elif [ "$COUNT" -eq "-1" ]; then
+    rm /etc/services.d/s3-fuzzer/finish
+fi

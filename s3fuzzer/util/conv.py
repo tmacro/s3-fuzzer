@@ -4,7 +4,6 @@ import random
 import urllib.parse as urlparse
 from functools import partial
 from itertools import starmap
-from pprint import pprint
 
 from ..workload import build_workloads
 from .log import Log
@@ -97,7 +96,12 @@ def compare_listing(req_a, req_b):
         except AssertionError as e:
             _log.error('Listing compare failed! %s != %s'%(req_a.get(key), req_b.get(key)))
             raise e
-    return compare_contents(req_a['Contents'], req_b['Contents'])
+    try:
+        return compare_contents(req_a['Contents'], req_b['Contents'])
+    except KeyError:
+        if 'Contents' not in req_a and 'Contents' not in req_b:
+            return True
+        return False
 
 
 
@@ -122,23 +126,6 @@ def compare_version_listing(req_a, req_b):
     assert(compare_versions(req_a['Versions'], req_b['Versions']))
     return True
 
-
 def cleanup_bucket(bucket, client_factory):
-    client = client_factory()
-    marker = None
-    version_marker = None
-    truncated = True
-    while truncated:
-        kwargs = dict(Bucket=bucket)
-        if marker is not None:
-            kwargs['KeyMarker'] = marker
-        if version_marker is not None:
-            kwargs['VersionIdMarker'] = version_marker
-        res = client.list_object_versions(**kwargs)
-        versions = [dict(Key=v['Key'], VersionId=v['VersionId']) for v in res.get('Versions', [])]
-        client.delete_objects(Bucket=bucket, Delete=dict(Objects=versions))
-        delete_markers = [dict(Key=v['Key'], VersionId=v['VersionId']) for v in res.get('DeleteMarkers', [])]
-        client.delete_objects(Bucket=bucket, Delete=dict(Objects=delete_markers))
-        truncated = res.get('IsTruncated', False)
-        marker = res.get('NextKeyMarker')
-        version_marker = res.get('NextVersionMarker')
+    bkt = client_factory(True).Bucket(bucket)
+    bkt.object_versions.all().delete()

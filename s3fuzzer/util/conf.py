@@ -74,7 +74,8 @@ APP_DEFAULTS = {
         'access_key': None,
         'secret_key': None,
         'bucket': None
-    }
+    },
+    'versioned': True
 }
 
 BUILT_IN_DEFAULTS.update(APP_DEFAULTS)
@@ -188,6 +189,8 @@ def loadConfig(path = None):
     config['logging']['loglvl'] = parseLogLevel(config['logging']['loglvl']) # Parse the loglvl
     if config['logging']['loglvl'] == logging.DEBUG:
         config['logging']['debug'] = True
+    if config['versioned'] is not True:
+        config['versioned'] = False
     return createNamespace(config) # Return the config for good measure
 
 

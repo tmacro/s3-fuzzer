@@ -1,0 +1,7 @@
+#!/bin/sh
+
+MSG="<!--anti-timeout--!>"
+while true; do
+	echo "$MSG"
+	sleep 60
+done

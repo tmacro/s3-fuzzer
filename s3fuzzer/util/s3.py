@@ -16,10 +16,16 @@ ZENKO_SECRET_KEY = getattr(config.zenko, 'secret_key', None)
 
 assert(ZENKO_HOST is not None and ZENKO_ACCESS_KEY is not None and ZENKO_SECRET_KEY is not None)
 
-def build_zenko_client():
-    return boto3.client('s3', endpoint_url = ZENKO_HOST, config = s3_config,
+def build_zenko_client(resource=False):
+    factory = boto3.client
+    if resource:
+        factory = boto3.resource
+    return factory('s3', endpoint_url = ZENKO_HOST, config = s3_config,
             aws_access_key_id = ZENKO_ACCESS_KEY, aws_secret_access_key=ZENKO_SECRET_KEY)
 
-def build_aws_client():
-    return boto3.client('s3', config = s3_config,
+def build_aws_client(resource=False):
+    factory = boto3.client
+    if resource:
+        factory = boto3.resource
+    return factory('s3', config = s3_config,
             aws_access_key_id = config.aws.access_key, aws_secret_access_key=config.aws.secret_key)

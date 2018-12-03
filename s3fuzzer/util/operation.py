@@ -44,7 +44,7 @@ def _list_versions(bucket, prefix, client, next_marker = None, next_ver_marker =
 
 
 def list_versions(bucket, prefix, client, next_marker = None, next_ver_marker = None):
-    _log.info('Listing versions %s/%s'%bucket, prefix)
+    _log.info('Listing versions %s/%s'%(bucket, prefix))
     resp, next_marker, next_ver_marker = _list_versions(bucket, prefix, client, next_marker, next_ver_marker)
     if next_marker or next_ver_marker:
         return [resp] + list_versions(bucket, prefix, client, next_marker, next_ver_marker)

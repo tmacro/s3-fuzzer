@@ -24,10 +24,11 @@ def entry():
 
     _log.info('Starting fuzzer seed:%s step:%s/%s'%(seed, step, count))
     try:
-        main(seed, count, step)
+        sys.exit(main(seed, count, step))
     except Exception as e:
         _log.error('Caught unhandled exception! Logging and exiting')
         _log.exception(e)
+        sys.exit(1)
 
 def usage(app):
     print('Usage: %s <seed> [rounds] [step]'%os.path.basename(app))

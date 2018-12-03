@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from copy import deepcopy
 from .util.log import Log
 
@@ -46,7 +46,7 @@ class Object:
     def delete_master(self):
         self._deleted = True
 
-class Bucket(dict):
+class Bucket(OrderedDict):
     def keys(self, deleted = True):
         if deleted:
             return super().keys()

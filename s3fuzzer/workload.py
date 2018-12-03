@@ -73,7 +73,7 @@ class Workload:
 
 class EnvironmentWorkload(Workload):
     def _parse(self, result, op):
-        return result['VersionId'], op.args
+        return result.get('VersionId'), op.args
 
 class ListWorkload(Workload):
     def _parse(self, result, op):
