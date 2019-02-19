@@ -48,8 +48,8 @@ APP_DEFAULTS = {
         'size': 0,
         'content': '0',
         'count': {
-            'min': 5000,
-            'max': 10000
+            'min': 50,
+            'max': 1000
         },
         'prefix': {
             'min': 0,
@@ -57,12 +57,12 @@ APP_DEFAULTS = {
         },
         'versions': {
             'min': 0,
-            'max': 1000
+            'max': 50
         }
     },
     'transform': {
-        'min': 10,
-        'max':100
+        'min': 1,
+        'max': 25
     },
     'zenko': {
         'host': 'http://zenko.local',
