@@ -1,5 +1,5 @@
 import logging
-from .conf import config
+import sys
 
 levels = dict(
 		critical = logging.CRITICAL,
@@ -8,6 +8,9 @@ levels = dict(
 		info = logging.INFO,
 		debug = logging.DEBUG
 		)
+
+def parse_loglvl(level):
+	return levels.get(level)
 
 class Whitelist(logging.Filter):
 	def __init__(self, *whitelist):
@@ -20,45 +23,60 @@ class Blacklist(Whitelist):
 	def filter(self, record):
 		return not Whitelist.filter(self, record)
 
-def formatter():
-	return logging.Formatter(fmt=config.logging.logfmt, datefmt=config.logging.datefmt)
+def formatter(logfmt = '%(asctime)s %(name)s %(levelname)s: %(message)s', datefmt = '%d.%m.%y %I:%M:%S %p'):
+	return logging.Formatter(fmt=logfmt, datefmt=datefmt)
 
-def setupLogging():
+BASELOGGER = None
+DEBUG = False
+
+def setupLogging(
+		name,
+		version,
+		loglvl = logging.DEBUG,
+		logfile = None,
+		log_rotation = False,
+		logfmt = '%(asctime)s %(name)s %(levelname)s: %(message)s',
+		datefmt = '%d.%m.%yT%I:%M:%S %p',
+		whitelist=[],
+		blacklist=[],
+	):
 	# Create our root logger and set the log lvl
 	rootLogger = logging.getLogger()
-	rootLogger.setLevel(config.logging.loglvl)
+	rootLogger.setLevel(loglvl)
 
 	# Setup formatting
 	# formatter = logging.Formatter(fmt=config.logging.logfmt, datefmt=config.logging.datefmt)
 
 	# Add logging to stdout
 	streamHandler = logging.StreamHandler()
-	streamHandler.setFormatter(formatter())
+	streamHandler.setFormatter(formatter(logfmt, datefmt))
 
 	rootLogger.addHandler(streamHandler)
 
 	# Setup log files and rotation if enabled
-	if config.logging.logfile:
-		if config.logging.log_rotation:
+	if logfile is not None:
+		if log_rotation:
 			handler = logging.handlers.RotatingFileHandler(
-				config.logging.logfile, maxBytes=10*1024*1024, backupCount=2)
+				logfile, maxBytes=10*1024*1024, backupCount=2)
 		else:
-			handler = logging.FileHandler(config.logging.logfile)
+			handler = logging.FileHandler(logfile)
 
-		handler.setFormatter(formatter())
+		handler.setFormatter(formatter(logfmt, datefmt))
 		rootLogger.addHandler(handler)
 
-	if config.logging.whitelist:
+	if whitelist:
 		for handler in logging.root.handlers:
-			handler.addFilter(Whitelist(*config.logging.whitelist))
-	elif config.logging.blacklist:
+			handler.addFilter(Whitelist(*whitelist))
+	elif blacklist:
 		for handler in logging.root.handlers:
-			handler.addFilter(Blacklist(*config.logging.blacklist))
-	baseLogger = rootLogger.getChild(config.meta.app)
-	baseLogger.info('Starting %s: version %s'%(config.meta.app, config.meta.version))
+			handler.addFilter(Blacklist(*blacklist))
+	baseLogger = rootLogger.getChild(name)
+	if loglvl == logging.DEBUG:
+		setattr(sys.modules[__name__], 'DEBUG', True)
+		baseLogger.info('Starting %s: version %s'%(name, version))
+	setattr(sys.modules[__name__], 'BASELOGGER', baseLogger)
 	return baseLogger
 
-BASE_LOGGER = setupLogging()
 
 # return a nested child of root
 # levels are indicated in name by "."
@@ -70,7 +88,7 @@ def get_logger(root, name):
 	return get_logger(root.getChild(lvl.pop(0)), '.'.join(lvl))
 
 def Log(name):
-	baselogger = BASE_LOGGER if BASE_LOGGER else logging.getLogger('root')
+	baselogger = BASELOGGER if BASELOGGER else logging.getLogger('root')
 	return get_logger(baselogger, name)
 
 def log_on_error(logger, target_handler = None, flush_lvl = logging.ERROR, capacity = 250):
@@ -91,3 +109,16 @@ def log_on_error(logger, target_handler = None, flush_lvl = logging.ERROR, capac
 				logger.removeHandler(handler)
 		return wrapper
 	return decorator
+
+def log_call(logger='log.log_call', msg='Calling {func} with {args} {kwargs}'):
+	def outer(func):
+		_log = Log(logger)
+		def inner(*args, **kwargs):
+			_log.debug(msg.format(
+				func=func.__name__,
+				args=str(args),
+				kwargs=str(kwargs)
+			))
+			return func(*args, **kwargs)
+		return inner
+	return outer

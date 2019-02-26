@@ -1,1 +1,7 @@
-.venv/
+**/.venv/
+**/.git
+**/*.egg-info
+**/__pycache__
+**/dist
+**/.vscode
+./build
