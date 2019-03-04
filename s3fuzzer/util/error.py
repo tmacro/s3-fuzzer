@@ -17,4 +17,4 @@ class ConfigImportError(ConfigError):
 	'''Error locating a child config file'''
 
 class WorkloadTimeoutError(S3FuzzError):
-    '''Raised when a workload exceeds its timeout'''
+	'''Raised when a workload exceeds its timeout'''

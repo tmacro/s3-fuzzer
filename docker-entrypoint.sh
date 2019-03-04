@@ -8,20 +8,7 @@ else
     fi
     ANTI_PID=$!
     cd /app
-
-    if [ -z "$SEED" ]; then
-        SEED='12345567890'
-    fi
-
-    if [ -z "$COUNT" ]; then
-        COUNT='-1'
-    fi
-
-    if [ -z "$STEP" ]; then
-        STEP='0'
-    fi
-
-    python run.py "$SEED" "$COUNT" "$STEP"
+	s3fuzz -v
     RET_CODE=$?
     if [ -n "$ANTITIMEOUT" ]; then
         kill -9 $ANTI_PID

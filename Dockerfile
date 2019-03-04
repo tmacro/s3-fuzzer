@@ -7,5 +7,7 @@ RUN pip install -r /tmp/requirements.txt
 ADD ./s6 /etc
 ADD ./docker-entrypoint.sh /
 ADD ./ /app
+RUN cd ./app && \
+	python setup.py develop
 
-CMD [ "sh", "/docker-entrypoint.sh" ]
+ENTRYPOINT [ "sh", "/docker-entrypoint.sh" ]
