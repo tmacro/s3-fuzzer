@@ -1,5 +1,5 @@
 #!/bin/sh
-
+sleep 2
 if [ -z "$NO_SERVICES" ]; then
     exec /init
 else

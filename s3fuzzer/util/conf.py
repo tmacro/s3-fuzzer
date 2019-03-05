@@ -34,8 +34,11 @@ BUILTIN_DEFAULTS = {
 		"logfmt" : '%(asctime)s %(name)s %(levelname)s: %(message)s',
 		"datefmt" : '%d-%m-%y %I:%M:%S %p',
 		'whitelist': [],
-		'blacklist': [],
-		},
+		'blacklist': [
+            'botocore',
+            'urllib3'
+        ],
+    },
 }
 
 # A place for your application specific defaults to live

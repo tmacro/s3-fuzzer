@@ -26,7 +26,7 @@ def build_zenko_client(resource=False, s3_config=default_s3_config):
 	factory = boto3.client
 	if resource:
 		factory = boto3.resource
-	return factory('s3', config = s3_config,# endpoint_url = config.zenko.host,
+	return factory('s3', config = s3_config, endpoint_url = config.zenko.host,
 			aws_access_key_id = config.zenko.access_key, aws_secret_access_key=config.zenko.secret_key)
 
 def build_aws_client(resource=False, s3_config=default_s3_config):
@@ -53,13 +53,11 @@ class BaseClient:
 			kwargs['VersionId'] = ver
 		if not dry_run:
 			return self._client.delete_object(**kwargs)
-
 	def upload(self, key, dry_run=False):
 		self._log.debug('Uploading %s'%key)
 		kwargs = dict(Bucket=self._client_bucket, Key=key)
 		if not dry_run:
 			resp = self._client.put_object(**kwargs, Body=b'')
-
 		if not dry_run and config.runtime.versioned:
 			return resp['VersionId']
 		else:

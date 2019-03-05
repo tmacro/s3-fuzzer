@@ -46,6 +46,16 @@ def compare_obj(a, b):
 	else: # If it doesn't it's a DeleteMarker
 		return _compare_dm(a,b)
 
+
+def cleanup(f):
+    def inner(*args, **kwargs):
+        res = f(*args, **kwargs)
+        aws_client.cleanup()
+        zenko_client.cleanup()
+        return res
+    return inner
+
+@cleanup
 def fuzz(seed, dry_run=False):
 	# Fill our bucket with random objects
 	zoutput, aoutput = FillLayer(seed).apply(zenko_client, aws_client, dry_run=dry_run)
