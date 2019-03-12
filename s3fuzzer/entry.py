@@ -9,6 +9,7 @@ from .util.log import Log
 _log = Log('entry')
 
 def entry():
+	sys.exit(0)
 	seed = config.runtime.seed
 	if seed is None:
 		seed = '1337h4CK$'

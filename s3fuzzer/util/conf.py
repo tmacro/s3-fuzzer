@@ -36,7 +36,8 @@ BUILTIN_DEFAULTS = {
 		'whitelist': [],
 		'blacklist': [
             'botocore',
-            'urllib3'
+            'urllib3',
+			'boto3.resources'
         ],
     },
 }
@@ -49,6 +50,7 @@ APP_DEFAULTS = {
 		'step': 0,
 		'rounds': -1,
 		'dry_run': False,
+		'cleanup': True
 	},
 	'objects': {
 		'size': 0,
@@ -250,12 +252,6 @@ for directory in _SEARCH_DIRS:
 
 _FILEPATHS = [fn for fn in _FILEPATHS if fn.exists() and fn.is_file()]
 
-# @loader()
-# def versioned_mode_loader(config):
-# 	if 'VERSIONED' in os.environ and os.environ['VERSIONED'] != '':
-# 		return {'runtime':{'versioned': False}}
-# 	return {'runtime':{'versioned': True}}
-
 @loader()
 def env_patcher(config):
 	vals = {}
@@ -264,6 +260,7 @@ def env_patcher(config):
 	vals['step'] = get_from_env('S3FUZZ_STEP', type=int)
 	vals['dry_run'] = get_from_env('S3FUZZ_DRY_RUN')
 	vals['versioned'] = get_from_env('S3FUZZ_VERSIONED', None) is not None
+	vals['cleanup'] = get_from_env('S3FUZZ_NO_CLEANUP', None) is None
 	return dict(runtime={k: v for k, v in vals.items() if v is not None})
 
 @loader()

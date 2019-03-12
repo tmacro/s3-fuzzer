@@ -12,6 +12,10 @@ def dry_run(value):
 def verbose(value):
 	return 'debug'
 
+@flag('--no-cleanup', dest='runtime.cleanup')
+def no_cleanup(value):
+    return False
+
 @option('-r', '--rounds',
 		dest='runtime.rounds',
 		type=int,

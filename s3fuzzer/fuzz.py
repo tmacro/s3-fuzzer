@@ -48,12 +48,13 @@ def compare_obj(a, b):
 
 
 def cleanup(f):
-    def inner(*args, **kwargs):
-        res = f(*args, **kwargs)
-        aws_client.cleanup()
-        zenko_client.cleanup()
-        return res
-    return inner
+	def inner(*args, **kwargs):
+		res = f(*args, **kwargs)
+		if config.runtime.cleanup:
+			aws_client.cleanup()
+			zenko_client.cleanup()
+		return res
+	return inner
 
 @cleanup
 def fuzz(seed, dry_run=False):
