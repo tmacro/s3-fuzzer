@@ -122,15 +122,15 @@ class BaseClient:
 		self._client = old_client
 
 	def cleanup(self):
-		bkt = self._client_factory(True).Bucket(self._client_bucket)
+		bkt = self._client_factory(resource=True).Bucket(self._client_bucket)
 		bkt.object_versions.all().delete()
 
 class ZClient(BaseClient):
-	_client_factory = partial(build_zenko_client, resource=False)
+	_client_factory = partial(build_zenko_client)
 	_client_bucket = config.zenko.bucket
 	_logger_name = 'zenko'
 
 class AClient(BaseClient):
-	_client_factory = partial(build_aws_client, resource=False)
+	_client_factory = partial(build_aws_client)
 	_client_bucket = config.aws.bucket
 	_logger_name = 'aws'
