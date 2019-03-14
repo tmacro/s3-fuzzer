@@ -259,7 +259,7 @@ def env_patcher(config):
 	vals['rounds'] = get_from_env('S3FUZZ_ROUNDS', type=int)
 	vals['step'] = get_from_env('S3FUZZ_STEP', type=int)
 	vals['dry_run'] = get_from_env('S3FUZZ_DRY_RUN')
-	vals['versioned'] = get_from_env('S3FUZZ_VERSIONED', None) is not None
+	vals['versioned'] = get_from_env('S3FUZZ_VERSIONED', '').strip() != ''
 	vals['cleanup'] = get_from_env('S3FUZZ_NO_CLEANUP', None) is None
 	return dict(runtime={k: v for k, v in vals.items() if v is not None})
 
