@@ -41,7 +41,7 @@ def _compare_dm(a, b):
 	return False
 
 def compare_obj(a, b):
-	if 'Etag' in a: # If the obj has Etag its a regular object
+	if not config.runtime.versioned or 'ETag' in a: # If the obj has Etag its a regular object
 		return _compare_obj(a,b)
 	else: # If it doesn't it's a DeleteMarker
 		return _compare_dm(a,b)

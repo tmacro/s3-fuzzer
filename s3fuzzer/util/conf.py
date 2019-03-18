@@ -50,7 +50,8 @@ APP_DEFAULTS = {
 		'step': 0,
 		'rounds': -1,
 		'dry_run': False,
-		'cleanup': True
+		'cleanup': True,
+		'versioned': False
 	},
 	'objects': {
 		'size': 0,
@@ -83,7 +84,6 @@ APP_DEFAULTS = {
 		'secret_key': None,
 		'bucket': None
 	},
-	'versioned': True
 }
 
 
