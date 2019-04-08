@@ -159,6 +159,9 @@ def get_from_env(key, default = None, type = None):
 	val = os.environ.get(key, default)
 	return type(val) if type is not None  and val is not default else val
 
+def is_env_set(key):
+	return get_from_env(key, '').strip() != ''
+
 _ROOT_PKG = pkg_name.upper()
 
 def update_from_env(orig, namespace = [_ROOT_PKG]):
@@ -258,9 +261,9 @@ def env_patcher(config):
 	vals['seed'] = get_from_env('S3FUZZ_SEED')
 	vals['rounds'] = get_from_env('S3FUZZ_ROUNDS', type=int)
 	vals['step'] = get_from_env('S3FUZZ_STEP', type=int)
-	vals['dry_run'] = get_from_env('S3FUZZ_DRY_RUN')
-	vals['versioned'] = get_from_env('S3FUZZ_VERSIONED', '').strip() != ''
-	vals['cleanup'] = get_from_env('S3FUZZ_NO_CLEANUP', None) is None
+	vals['dry_run'] = is_env_set('S3FUZZ_DRY_RUN')
+	vals['versioned'] = is_env_set('S3FUZZ_VERSIONED')
+	vals['cleanup'] = is_env_set('S3FUZZ_NO_CLEANUP')
 	return dict(runtime={k: v for k, v in vals.items() if v is not None})
 
 @loader()
