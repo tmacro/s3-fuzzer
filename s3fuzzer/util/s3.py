@@ -27,7 +27,8 @@ def build_zenko_client(resource=False, s3_config=default_s3_config):
 	if resource:
 		factory = boto3.resource
 	return factory('s3', config = s3_config, endpoint_url = config.zenko.host,
-			aws_access_key_id = config.zenko.access_key, aws_secret_access_key=config.zenko.secret_key)
+			aws_access_key_id = config.zenko.access_key, aws_secret_access_key=config.zenko.secret_key,
+			verify =  config.runtime.verify_certs)
 
 def build_aws_client(resource=False, s3_config=default_s3_config):
 	factory = boto3.client
