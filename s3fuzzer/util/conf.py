@@ -265,7 +265,7 @@ def env_patcher(config):
 	vals['dry_run'] = is_env_set('S3FUZZ_DRY_RUN')
 	vals['versioned'] = is_env_set('S3FUZZ_VERSIONED')
 	vals['cleanup'] = is_env_set('S3FUZZ_NO_CLEANUP')
-	vals['verify_certs'] = is_env_set('S3FUZZ_DISABLE_VERIFY_CERTS')
+	vals['verify_certs'] = not is_env_set('S3FUZZ_DISABLE_VERIFY_CERTS')
 	return dict(runtime={k: v for k, v in vals.items() if v is not None})
 
 @loader()
